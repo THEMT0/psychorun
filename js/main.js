@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 //borrowed works
 //
 //Anything related to the game timer: http://www.html5gamedevs.com/topic/1870-in-game-timer/ by Icculus
@@ -183,7 +182,7 @@ function render() {
     //game.debug.soundInfo(bgm, 20, 32);
     game.debug.text(bestT, 32, 32);
 }
-=======
+
 window.onload = function() {
     // You might want to start with a template that uses GameStates:
     //     https://github.com/photonstorm/phaser/tree/master/resources/Project%20Templates/Basic
@@ -236,4 +235,3 @@ window.onload = function() {
         bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, this.game.input.activePointer, 500, 500, 500 );
     }
 };
->>>>>>> dbe55e96ea2a5e6e0bc4e61b547622d802f8a58c
