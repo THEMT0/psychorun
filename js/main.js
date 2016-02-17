@@ -63,11 +63,15 @@ function create() {
     game.physics.arcade.gravity.y = 1000;
     
     //player creation and controls
-    player = game.add.sprite(40, 30, 'dude');
+    player = game.add.sprite(game.world.randomX, game.world.randomY, 'dude');
     game.physics.enable(player, Phaser.Physics.ARCADE);
-
-    player.body.bounce.y = 0.2;
     player.body.collideWorldBounds = true;
+    while(player.body.embedded)
+    {
+        player.reset(game.world.randomX, game.world.randomY);       
+    }
+    
+    player.body.bounce.y = 0.2;
     player.body.setSize(16, 26, 12, 4);
 
     player.animations.add('left', [32, 33, 34, 35, 36, 37, 38, 39], 10, true);
@@ -85,7 +89,7 @@ function create() {
     
     while(star.body.embedded)
     {
-        star = game.add.sprite(game.world.randomX, game.world.randomY, 'starBig');
+        star.reset(game.world.randomX, game.world.randomY);
     }
     
     star.body.bounce.set(1.0);
