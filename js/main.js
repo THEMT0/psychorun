@@ -31,6 +31,8 @@ var cursors;
 var jumpButton;
 var bg;
 var bgm;
+
+//Time-related variables
 var timer;
 var milliseconds = 0;
 var seconds = 0;
@@ -47,15 +49,14 @@ function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.stage.backgroundColor = '#000000';
 
+    //background
     bg = game.add.tileSprite(0, 0, 800, 600, 'background');
     bg.fixedToCamera = true;
-
+    
+    //build level
     map = game.add.tilemap('level1');
     map.addTilesetImage('tiles-1');
     map.setCollisionByExclusion([ 13, 14, 15, 16, 46, 47, 48, 49, 50, 51 ]);
-    //map.body.collideWorldBounds = true;
-    //map.allowGravity = false;
-
     layer = map.createLayer('Tile Layer 1');
     layer.resizeWorld();
     
@@ -67,18 +68,26 @@ function create() {
 
     player.body.bounce.y = 0.2;
     player.body.collideWorldBounds = true;
-    player.body.setSize(40, 30);
+    player.body.setSize(16, 26, 12, 4);
 
     player.animations.add('left', [32, 33, 34, 35, 36, 37, 38, 39], 10, true);
     player.animations.add('turn', [3], 20, true);
     player.animations.add('right', [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
+    player.animations.add('idleLeft', [92, 93, 94, 95], true);
+    player.animations.add('idleRight', [88, 89, 90, 91], true);
 
     game.camera.follow(player);
     
+    //Building objective
     star = game.add.sprite(game.world.randomX,game.world.randomY, 'starBig');
     game.physics.enable(star, Phaser.Physics.ARCADE);
-    
     star.body.collideWorldBounds = true;
+    
+    while(star.body.embedded)
+    {
+        star = game.add.sprite(game.world.randomX, game.world.randomY, 'starBig');
+    }
+    
     star.body.bounce.set(1.0);
     //star.body.setSize(24,22);
 
@@ -96,17 +105,17 @@ function create() {
     
     oMin = Math.floor(game.time.time / 60000) % 60;
     oSec = Math.floor(game.time.time/1000) % 60;
-    //oMil = Math.floor(game.time.time) % 100;
+    oMil = Math.floor(game.time.time) % 100;
 }
 
 //controls the time ticking ingame
 function updateTimer() {
-    minutes = Math.floor(game.time.time / 60000) % 60 - oMin;
-    seconds = Math.floor(game.time.time/1000) % 60 - oSec;
-    //milliseconds = Math.floor(game.time.time) % 100 - oMil;
+    minutes = Math.abs(Math.floor(game.time.time / 60000) % 60 - oMin);
+    seconds = Math.abs(Math.floor(game.time.time/1000) % 60 - oSec);
+    //milliseconds = Math.abs(Math.floor(game.time.time) % 100 - oMil);
     
-    //if (milliseconds < 10)
-      //  milliseconds = '0' + milliseconds;
+    if (milliseconds < 10)
+        milliseconds = '0' + milliseconds;
     if (seconds < 10)
         seconds = '0' + seconds;
     if (minutes < 10)
@@ -122,45 +131,37 @@ function update() {
     game.physics.arcade.collide(star, layer);
     game.physics.arcade.collide(player, layer);
 
+    //player movement
     player.body.velocity.x = 0;
 
     if (cursors.left.isDown)
     {
-        player.body.velocity.x = -250;
-
-        if (facing != 'left')
-        {
-            player.animations.play('left');
-            facing = 'left';
-        }
+        player.body.velocity.x = -300;
+        player.animations.play('left');
+        facing = 'left';
     }
+    
     else if (cursors.right.isDown)
     {
-        player.body.velocity.x = 250;
-
-        if (facing != 'right')
-        {
-            player.animations.play('right');
-            facing = 'right';
-        }
+        player.body.velocity.x = 300;
+        player.animations.play('right');
+        facing = 'right';
     }
+    
     else
     {
-        if (facing != 'idle')
-        {
-            player.animations.stop();
-
-            if (facing == 'left')
+            //player.animations.stop();
+            if (facing == 'right')
             {
-                player.frame = 0;
-            }
-            else
+                player.animations.play('idleRight');
+            }        
+        
+            else if (facing == 'left')
             {
-                player.frame = 5;
+                player.animations.play('idleLeft');
             }
-
+                    
             facing = 'idle';
-        }
     }
     
     if (jumpButton.isDown && player.body.onFloor() && game.time.now > jumpTimer)
@@ -169,11 +170,15 @@ function update() {
         jumpTimer = game.time.now + 250;
     }
     
+    //star movement
+    star.body.acceleration.x = game.world.randomX;
+    
+    //win condition
     if(game.physics.arcade.collide(player, star))
-        {
-            bestT = 'Last Time: ' + minutes + ':' + seconds;
-            create();
-        }
+    {
+        bestT = 'Last Time: ' + minutes + ':' + seconds;
+        create();
+    }
     
     //text.text = game.time.time;
 }
